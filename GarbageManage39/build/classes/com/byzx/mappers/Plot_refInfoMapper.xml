@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.Plot_refInfoDao">
+
+	<resultMap type="Plot_refInfo" id="resultPlot_refInfo">
+		<id property="plot_ref_id" column="plot_ref_id" jdbcType="INTEGER"/>
+		<result property="plot_id" column="plot_id" jdbcType="INTEGER"/>
+		<result property="buliding_num" column="buliding_num" jdbcType="INTEGER"/>
+		<result property="createtime" column="createtime" jdbcType="DATE"/>
+		<result property="delflag" column="delflag" jdbcType="INTEGER"/>
+		<result property="remark" column="remark" jdbcType="VARCHAR"/>
+		<result property="state" column="state" jdbcType="INTEGER"/>
+	</resultMap>
+	
+	
+	<select id="findPlot_refInfoByDId" parameterType="Integer" resultMap="resultPlot_refInfo">
+		select 
+			plot_ref_id,
+			plot_id,
+			buliding_num,
+			createtime,
+			delflag,
+			remark,
+			state
+		from
+			t_plot_ref
+		where 
+			delflag=0
+			and plot_id=#{plot_id}
+	</select>
+	
+	<insert id="savePlot_refInfo" parameterType="Plot_refInfo">
+		insert into
+			t_plot_ref(
+				plot_id,
+				buliding_num,
+				createtime,
+				delflag,
+				remark,
+				state
+			) values(
+				#{plot_id},
+				#{buliding_num},
+				#{createtime},
+				#{delflag},
+				#{remark},
+				#{state}
+			)
+			
+			   
+	</insert>
+	
+	<update id="updatePlot_refInfo" parameterType="Plot_refInfo">
+		update
+			t_plot_ref
+		set
+			buliding_num=#{buliding_num},
+			remark=#{remark}
+		where
+			plot_ref_id=#{plot_ref_id}
+	</update>
+	
+ 	
+	<update id="deletePlot_refInfo" parameterType="Integer">
+		update
+			t_plot_ref
+		set
+			delflag=1
+		where 
+			plot_id=#{plot_ref_id}
+	</update>
+	
+	<update id="deletePlot_refByDId" parameterType="Integer">
+		update
+			t_plot_ref
+		set
+			delflag=1
+		where 
+			plot_id=#{plot_id}
+	</update>
+	
+</mapper> 
+
+
+
+
+
+

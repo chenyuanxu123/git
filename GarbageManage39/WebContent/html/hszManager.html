@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>回收管理</title>
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../custom/uimaker/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../custom/uimaker/icon.css">
+		<link rel="stylesheet" href="../css/providers1.css">
+		<script type="text/javascript" src="../custom/jquery.min.js"></script>
+	    <script type="text/javascript" src="../custom/jquery.easyui.min.js"></script>
+	    <script type="text/javascript" src="../custom/easyui-lang-zh_CN.js"></script>
+	</head>
+<body>
+	<!-- 回收站datagrid Start -->
+ 	<div class="container" style="width:100%;">
+       <table class="easyui-datagrid" id="dg" style="width:100%;"  data-options="
+                rownumbers:true,
+                pagination:true,
+                fitColumns:true,
+                scrollbarSize:0,
+                toolbar:'#tb',
+                pageSize:10,
+                url:'../recycleInfo/findAllRecycleInfo.action'
+                ">
+            <thead>
+                <tr>
+                	<th field="ck" checkbox="true" align="center" width="50px"></th>
+                	<th field="recycle_linkman_id" align="center" width="50px">回收站详情编号</th>
+                    <th field="recycle_id" align="center" width="50px">回收站编号</th>
+                    <th field="recycle_name" align="center" width="50px">回收站名称</th>
+                    <th field="recycle_site" align="center" width="50px">回收站位置</th>
+                    <th field="recycle_iconCls" align="center" width="50px">回收站图标</th>
+                    <th field="recycle_capacity" align="center" width="50px">回收站容量</th>
+                    <th field="user_name" align="center" width="50px">回收站人员</th>
+                    <th field="full_status" align="center" width="50px">状态（判断是否已经满了）</th>
+                    <th field="remark" align="center" width="60px">备注</th>
+                </tr>
+            </thead>
+        </table>
+      <div id="tb" style="padding:0 30px;width:100%;">
+        <div class="opt-buttons" style="width:100%;">
+            <a href="javascript:newRecycleInfo()" class="easyui-linkbutton" data-options="selected:true">新增</a>
+            <a href="javascript:updateRecycleInfo()" class="easyui-linkbutton">修改</a>
+            <a href="javascript:deleteRecycleInfos()" class="easyui-linkbutton">删除</a>
+            <a href="#" class="easyui-linkbutton">导出</a>
+        	<div class="conditions" style="float:right;margin-right: 20px">
+	          	<span class="con-span">回收站名称: </span>
+	          	<input class="easyui-textbox" type="text" name="seachByName" id="seachByName" style="width:166px;height:35px;line-height:35px;"></input>
+	          	 <a href="javascript:searchRecycleInfoByName()" class="easyui-linkbutton" iconCls="icon-search" data-options="selected:true">查询</a>
+       		</div>
+        </div>
+      </div>
+    </div>
+    <!-- 回收站datagrid END -->
+    
+    <!-- 回收站表单 START -->
+     <div id="dlg" class="easyui-dialog" modal="true" style="width: 570px;height: 350px;padding: 10px 20px" closed="true" closable="false" buttons="#dlg-buttons">
+	     <form id="fm" method="post">
+	           <table cellspacing="5px">
+					<p><input type="hidden" id="recycle_id" name="recycle_id" /></p>
+					<tr height="40px">
+						<td>回收站名称：</td>
+		      			<td>
+		      				<input type="text" id="recycle_name" name="recycle_name" class="easyui-validatebox" required="true"/>
+		      			</td>
+		      			<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      			<td>回收站图标：</td>
+		      			<td>
+		      				<input type="text" id="recycle_iconCls" name="recycle_iconCls" class="easyui-validatebox" required="true"/>
+		      			</td>
+		      		</tr>
+					<tr height="40px">
+						<td>回收站容量：</td>
+		      			<td>
+		      				<input type="text" id="recycle_capacity" name="recycle_capacity" class="easyui-validatebox" required="true"/>
+		      			</td>
+		      			<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		      		</tr>
+		      		<tr height="40px">
+						<td>回收站人员：</td>
+		      			<td>
+		      				<input type="hidden" id="user_id" name="user_id"/>
+							 <input type="text" id="user_name" name="user_name" class="easyui-validatebox" required="true" readonly="readonly"/>
+						</td>
+						<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+						<td colspan="2">
+							<a href="javascript:openUserChooseDialog()" class="easyui-linkbutton">选择回收员 </a>
+						</td>
+					</tr>
+					<tr>
+						<td>备注：</td>
+						<td colspan="4">
+		     			<textarea rows="7" cols="50" name="remark" id="remark"></textarea></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+		
+    	<div id="dlg-buttons">
+	      <a href="javascript:saveRecycle()" class="easyui-linkbutton" iconCls="icon-ok">保存</a>
+	      <a href="javascript:closeRecycleAddDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+		</div> 
+    	<!-- 回收站表单 END -->
+    	
+    	
+    	<!-- 用户列表Start -->
+    	<div id="dlg2" class="easyui-dialog" iconCls="icon-search" style="width: 500px;height: 480px;padding: 10px 20px" closed="true" buttons="#dlg2-buttons">
+	     	 <div style="height: 40px" align="center">
+				角色名称：<input type="text" id="seachUserName" name="seachUserName" onkeydown="if(event.keyCode==13) searchRole()"/>
+				<a href="javascript:searchUser()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+			</div>
+	      	<div style="height: 350px;">
+				<table id="dg2" title="查询结果" class="easyui-datagrid" fitColumns="true" pagination="true" rownumbers="true" fit="true" singleSelect="true" url="../userInfo/findAllUserInfoByRole.action">
+		      		<thead>
+						<tr>
+							<th field="ck" checkbox="true" width="50" align="center">编号</th>
+							<th field="user_id" width="50" align="center">编号</th>
+							<th field="user_name" width="50" align="center">用户名称</th>
+			      			<th field="role_name" width="100" align="center">角色名称</th>
+			      			<th field="user_phone" width="100" align="center">联系电话</th>
+			     			<th field="remark" width="50" align="center">备注</th>
+			     		</tr>
+		      		</thead>
+		      	</table>
+		     </div>
+		</div>
+		<div id="dlg2-buttons">
+	      	<a href="javascript:chooseUser()" class="easyui-linkbutton" iconCls="icon-ok">确定</a>
+	      	<a href="javascript:closeUserDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+		</div> 
+    	<!-- 用户列表END -->
+    
+    
+   <script type="text/javascript">
+   		var currentUrl="";
+   		var addUrl="../recycleInfo/saveRecycleInfo.action";
+   		var updateUrl="../recycleInfo/updateRecycleInfo.action";
+        
+   		/* 根据用户名查询用户信息 */
+        function searchRecycleInfoByName(){
+			$("#dg").datagrid("load",{
+				seachByName:$("#seachByName").val()
+			});
+        }
+   		
+        /* 点击新建按钮触发事件 */
+        function newRecycleInfo(){
+        	$("#dlg").dialog("open").dialog("setTitle","添加用户");
+        	$("#recycle_name").removeAttr("disabled","disabled");
+        	currentUrl=addUrl;
+        }
+        
+        /* 点击选择角色按钮触发事件 */
+        function openUserChooseDialog(){
+        	$("#dlg2").dialog("open").dialog("setTitle","角色列表");
+        }
+        
+        /* 点击角色查询按钮触发事件 */
+        function searchUser(){
+        	$("#dg2").datagrid("load",{
+        	seachUserName:$("#seachUserName").val() 
+       		 });
+        }
+        
+        /* 选中用户发事件 */
+        function chooseUser(){
+        	var selectUserInfo=$("#dg2").datagrid("getSelected");
+			if(selectUserInfo==null){
+				$.messager.alert("系统提示","请选择一个角色","info");
+				return false;
+			}
+			$("#user_id").val(selectUserInfo.user_id);
+			$("#user_name").val(selectUserInfo.user_name);
+			$("#dlg2").dialog("close");
+        }
+        
+        /* 点击角色关闭按钮触发事件 */
+        function closeRecycleAddDialog(){
+        	$("#dlg2").dialog("close");
+        }
+        
+        /* 点击关闭按钮触发事件 */
+        function closeRecycleAddDialog(){
+        	$("#fm").form("clear");
+        	$("#dlg").dialog("close");
+        }
+        
+        /* 点击保存按钮触发事件 */
+        function saveRecycle(){
+        	$("#recycle_name").removeAttr("disabled","disabled");
+        	$("#fm").form("submit",{
+        		url:currentUrl,
+        		onSubmit:function(){
+        			return $(this).form("validate"); 
+        		},
+        		success:function(result){
+        			var result=eval('('+result+')');
+        			if(result.msg){
+        				$.messager.alert("系统提示","保存成功！","info");
+        				$("#fm").form("clear");
+        				 closeRecycleAddDialog();
+        				 $("#dg").datagrid("reload");
+        			}else{
+        				$.messager.alert("系统提示","<font color=red>"+result.errorMsg+"</font>");
+        			}
+        			currentUrl="";
+        		}
+        	});
+        }
+        
+        
+        //点击修改按钮发生事件
+        function updateRecycleInfo(){
+        	var selectRows=$("#dg").datagrid("getSelections");
+        	if(selectRows.length!=1){
+        		$.messager.alert("提示信息","请选择一条你需要修改的用户信息","warning");
+        		return false;
+        	}
+        	$("#fm").form("load",selectRows[0]);
+        	$("#dlg").dialog("open").dialog("setTitle","修改用户信息");
+        	$("#recycle_name").attr("disabled","disabled");
+        	currentUrl=updateUrl;
+        }
+        
+       //点击删除按钮触发事件
+        function deleteRecycleInfos(){
+        	var selectRows=$("#dg").datagrid("getSelections");
+        	if(selectRows.length==0){
+        		$.messager.alert("提示信息","请选择需要删除的用户信息","warning");
+        		return false;
+        	}
+        	$.messager.confirm("提示信息","您确认要删除<font color='red' size='5'>"+selectRows.length+"</font>条数据吗？",function(r){
+        		if(r){
+        			var recycleInfoIds=[];
+        			for(var i=0;i<selectRows.length;i++){
+        				recycleInfoIds.push(selectRows[i].recycle_id);
+        			} 
+        			var recycleIds=recycleInfoIds.join(",");
+        			$.post("../recycleInfo/deleteRecycleInfo.action",{recycleInfoIds:recycleIds},function(result){
+        				var result=eval('('+result+')');
+        				if(result.msg){
+        					$.messager.alert('系统提示',"您已成功删除<font color='red' size='5'>"+result.count+"</font>条数据！");
+        					$("#dg").datagrid("reload");
+        				}
+        			});
+        	}
+        	}); 
+        }
+    </script>
+</body>
+</html>

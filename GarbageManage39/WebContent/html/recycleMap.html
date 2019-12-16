@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			body, html{
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				margin:0;
+			}
+			#allmap {
+				margin-right: 300px;
+				height: 100%;
+				overflow: hidden;
+			}
+			#result {
+				border-left:1px dotted #999;
+				height:100%;
+				width:300px;
+				position:absolute;
+				top:0px;
+				right:0px;
+				font-size:12px;
+			}
+			dl,dt,dd,ul,li{
+				margin:0;
+				padding:0;
+				list-style:none;
+			}
+			p{
+				font-size:12px;
+			}
+			dt{
+			    font-size:14px;
+			    font-family:"微软雅黑";
+			    font-weight:bold;
+			    border-bottom:1px dotted #000;
+			    padding:5px 0 5px 5px;
+			    margin:5px 0;
+			}
+			dd{
+			    padding:5px 0 0 5px;
+			}
+			li{
+			    line-height:28px;
+			}
+			table{
+			   align:center;
+			}
+		</style>
+		<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=k2u5EEAbBWd6Arvrymrn8hs5"></script>
+		<!--加载鼠标绘制工具-->
+		<script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+		<link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+		<!--加载检索信息窗口-->
+		<script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.js"></script>
+		<link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.css" />
+		<link rel="stylesheet" type="text/css" href="../custom/uimaker/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../custom/uimaker/icon.css">
+		<script type="text/javascript" src="../custom/jquery.min.js"></script>
+		<script type="text/javascript" src="../custom/jquery.easyui.min.js"></script>
+	    <script type="text/javascript" src="../custom/easyui-lang-zh_CN.js"></script>
+	</head>
+	<body>
+	   <div id="allmap" style="overflow:hidden;zoom:1;position:relative;">	
+		    <div id="map" style="height:100%;-webkit-transition: all 0.5s ease-in-out;transition: all 0.5s ease-in-out;"></div>
+		    <!-- <div id="showPanelBtn" style="position:absolute;font-size:14px;top:50%;margin-top:-95px;right:0px;width:20px;padding:10px 10px;color:#999;cursor:pointer;text-align:center;height:170px;background:rgba(255,255,255,0.9);-webkit-transition: all 0.5s ease-in-out;transition: all 0.5s ease-in-out;font-family:'微软雅黑';font-weight:bold;">显示当前小区信息<br/><</div> -->
+		    <div id="panelWrap" style="width:0px;position:absolute;top:0px;right:0px;height:100%;overflow:auto;-webkit-transition: all 0.5s ease-in-out;transition: all 0.5s ease-in-out;">
+		        <div style="width:20px;height:200px;color:#999;" id="showOverlayInfo"></div>
+		    </div>
+		    <div id="panel" style="position:absolute;"></div>
+	 </div>
+	 <div id="result">
+		    <dl>
+		        <dd>
+		            <ul>
+		                <li>
+							 <div style="width: 100%;">
+									<a id="newbtn" href="javascript:newRecycleInfo()"
+										class="easyui-linkbutton" iconCls="icon-add" plain="true" >新建</a>
+								    <a  id="editbtn" onclick="editRecycleInfo()"
+										class="easyui-linkbutton" iconCls="icon-edit" plain="true" >修改</a> 
+									<a	id="delbtn" onclick="deleRecycleInfo()"
+										class="easyui-linkbutton" iconCls="icon-remove" plain="true" >删除</a> 
+									<a	id="savebtn" onclick="saveRecycleInfoForm()"
+						                class="easyui-linkbutton" iconCls="icon-save" plain="true" >保存</a>
+					                <a  id="canclebtn" onclick="cancleRecycleEditer()"
+						                class="easyui-linkbutton" iconCls="icon-cancel" plain="true">取消</a>	
+							 </div>
+							<div data-options="region:'center'" style="height: 100%;width: 100%;">
+									<div id="tab_show" align="center" title="回收站点编辑框" class="easyui-panel" style="height:250px;background-color: #F7F7F7;width: 100%;" >
+										<form id="dataEditForm" method="post">
+											<input type="hidden" name="recycle_id" id="recycle_id" />
+											<table cellspacing="5px" id="dg">
+												   <tr>
+										               <td>回收站点名称:</td>
+										               <td><input type="text" id="recycle_name" name="recycle_name" class="easyui-validatebox" required="true"/></td>
+										           </tr>
+										           <tr>
+										               <td>回收站点位置:</td>
+										               <td><input type="text" id="recycle_site" name="recycle_site" class="easyui-validatebox" required="true"/></td>
+										          </tr>
+										          <tr>
+										               <td>回收站容量:</td>
+										               <td><input type="text" id="recycle_capacity" name="recycle_capacity" class="easyui-validatebox" required="true"/></td>
+										          </tr>
+										         <!--  <tr>
+										               <td>所属区域:</td>
+										               <td><input type="text" id="plot_district" name="plot_district" class="easyui-validatebox" /></td>
+										          </tr> -->
+										          <tr>  
+										               <td>备注:</td>
+										               <td><input type="text" id="remark" name="remark" class="easyui-validatebox"/></td>
+										          </tr>
+										          <tr>
+										                <td>回收员信息:</td>
+										               <td>
+										                  <input id="user_id" name="user_id" class="easyui-combobox"   required="true" data-options="editable:false,panelHeight:'auto',valueField:'user_id',textField:'user_name',url:'../userInfo/findUserInfoByRole.action'"/>
+										               </td>
+										               
+										          </tr>
+											</table>
+										</form>
+						 		 </div>
+						 	</div>
+						 </li>
+					</ul>
+				</dd>
+			</dl>
+		</div>
+	</body>
+</html>
+
+<script type="text/javascript">
+     
+     var findUrl="../plotInfo/findAllPlots.action";
+     var addUrl="../recycleInfo/saveRecycleInfo.action";
+     var updateUrl="../recycleInfo/updateRecycleInfo.action";
+     var curUrl="";
+	
+   //FORM表单序列化转对象
+		function serializeObject(form) {
+			var o = {};
+			jQuery.each(form.serializeArray(), function(index) {
+				if (o[this['name']]) {
+					o[this['name']] = o[this['name']] + "," + this['value'];
+				} else {
+					o[this['name']] = this['value'];
+				}
+			});
+			return o;
+		}	
+  
+     
+			
+   
+
+	
+	
+	
+	
+    //点击删除按钮事件
+    function deleRecycleInfo(){
+    	
+    	jQuery("#dataEditForm :input").removeAttr("disabled","disabled");
+    	jQuery('#user_id').combobox('enable');
+    	
+         var form=jQuery("#dataEditForm");
+         var plotInfo=serializeObject(form);
+    	 var recycle_id=plotInfo.recycle_id;
+    	jQuery.messager.confirm("提示信息","您确认要删除该数据吗?",function(r){
+			if(r){
+				jQuery.ajax({
+					url:"../recycleInfo/deleteRecycleInfo2.action",
+					data:{recycle_id:recycle_id},
+					dataType:"json",
+					type:"post",
+					success:function(result){
+						if(result.msg){
+							jQuery.messager.alert("提示信息","删除成功！","info");
+							 window.location.reload();
+						}else{
+							jQuery.messager.alert("提示信息","系统繁忙，请稍候操作！","warning");
+						}
+					},
+					error:function(){
+						jQuery.messager.alert("提示信息","系统繁忙，请稍候操作！","error");
+					}
+				});
+			}
+		});
+		
+	}
+    
+    
+    //初始化按钮
+    function  into(){
+    	jQuery("#dataEditForm").form("disableValidation");//关闭form表单验证
+    	jQuery("#dataEditForm :input").attr("disabled","disabled");
+    	
+    	jQuery("#canclebtn").linkbutton({disabled:true});
+        jQuery("#savebtn").linkbutton({disabled:true});
+        
+    	jQuery("#editbtn").linkbutton({disabled:false});
+        jQuery("#delbtn").linkbutton({disabled:false});
+        jQuery("#newbtn").linkbutton({disabled:false});
+    }
+    //点击取消按钮
+   function cancleRecycleEditer(){
+	   into();
+    }
+    //点击新增按钮
+    function newRecycleInfo(){
+    	
+    	jQuery('#user_id').combobox('enable');
+    	jQuery("#dataEditForm :input").removeAttr("disabled","disabled");
+    	jQuery("#recycle_name").form("enableValidation");//开启form表单验证
+    	
+    	jQuery("#canclebtn").linkbutton({disabled:false});
+        jQuery("#savebtn").linkbutton({disabled:false});
+        
+        jQuery("#editbtn").linkbutton({disabled:true});
+        jQuery("#delbtn").linkbutton({disabled:true});
+     
+        jQuery("#dataEditForm").form("clear");	//清空form表单
+        
+        curUrl=addUrl;
+        } 
+   //点击修改按钮
+    function editRecycleInfo(){
+    	
+    	jQuery("#dataEditForm :input").removeAttr("disabled","disabled");
+    	jQuery("#dataEditForm").form("enableValidation");//开启form表单验证
+	   
+    	jQuery("#canclebtn").linkbutton({disabled:false});
+        jQuery("#savebtn").linkbutton({disabled:false});
+        
+        jQuery("#newbtn").linkbutton({disabled:true});
+        jQuery("#delbtn").linkbutton({disabled:true});
+     
+        
+        curUrl=updateUrl;
+        } 
+    
+    
+    
+     
+ 	 //点击保存按钮  
+ 	  function saveRecycleInfoForm(){
+ 		 /*  jQuery("#recycle_name").removeAttr("disabled","disabled"); */
+ 		  jQuery("#dataEditForm").form("submit",{
+       		url:curUrl,
+       		onSubmit:function(){
+       			return jQuery(this).form("validate"); 
+       		},
+       		success:function(result){
+       			var result=eval('('+result+')');
+       			if(result.msg){
+       				jQuery.messager.alert("系统提示","保存成功！","info");
+       				window.location.reload();
+       				jQuery("#dataEditForm").form("clear");
+       			}else{
+       				jQuery.messager.alert("系统提示","<font color=red>"+result.errorMsg+"</font>");
+       			}
+       			currentUrl="";
+       		}
+       	});
+       }
+    
+   
+   
+ 	// 百度地图API功能
+    var map = new BMap.Map('map');
+    var poi = new BMap.Point(108.952986,34.239083);
+    map.centerAndZoom(poi, 18);
+    map.enableScrollWheelZoom();
+    
+  //页面一加载执行事件
+  
+    into();
+    jQuery("#canclebtn").linkbutton({disabled:true});
+    jQuery("#savebtn").linkbutton({disabled:true});
+  
+    jQuery.ajax({
+			type:"post",
+			url:"../recycleInfo/findRecycleSite.action",
+			dataType:"json",
+			success:function(result){
+				jQuery.each(result.recycleSite,function(i,cs){
+					var site=cs.split(",");
+					var recycle_site=[];
+					var point=new BMap.Point(site[0],site[1]);
+					recycle_site.push(point);
+					
+					var mI = new BMap.Icon("../images/回收站1.png", new BMap.Size(20,20));
+					var mk = new BMap.Marker(point,{icon:mI});
+					
+					map.addOverlay(mk); 
+					mk.addEventListener("click",attribute2);
+					
+					var label = new BMap.Label("我是一个回收站",{offset:new BMap.Size(20,-10)});
+					mk.setLabel(label);
+				})
+			},
+			
+			error:function(){
+				alert("系统繁忙，请稍候再试！");
+			},
+			
+    });
+  
+    function attribute2(e){
+		  
+		var p = e.target;
+		alert("回收站信息：" + p.getPosition().lng + "," + p.getPosition().lat);
+		var recycle_site=p.getPosition().lng+","+p.getPosition().lat;
+		/*  alert(plot_site);  */
+		/* var result=eval('('+result+')'); */
+		jQuery.ajax({
+			data:{recycle_site:recycle_site},
+			type:"post",
+			dataType:"json",
+			url:"../recycleInfo/findRecycleInfoBySite.action",
+			success:function(result){
+				console.info(result);
+				if(result!=null){
+					jQuery("#dataEditForm").form("load",result.recycleInfo); 
+				}else{
+					jQuery.messager.alert("提示信息","系统繁忙，请稍候操作！","info");
+				}
+			},
+			error:function(){
+			jQuery.messager.alert("提示信息","系统繁忙，请稍候操作！","error");
+			}
+		})
+	}	
+  
+  
+   
+
+  jQuery.ajax({
+	  url:"../plotInfo/findAllPlotScope.action",
+	  type:"post",
+	  dataType:"json",
+	  success:function(result){
+		jQuery.each(result.plotInfo,function(i,fw){
+			var werzhi=fw.plot_scope.split(";");
+			var poitDbx=[];
+			jQuery.each(werzhi,function(j,site){
+				var p=site.split(",");
+				var point = new BMap.Point(p[0],p[1]);
+				poitDbx.push(point);
+			})
+			console.info(poitDbx);
+			var polygon = new BMap.Polygon(poitDbx, {strokeColor:"red",fillColor:"red", strokeWeight:2, strokeOpacity:0.6});  //创建多边形
+			 console.info(polygon);
+			map.addOverlay(polygon);   //增加多边形
+			
+			var poitDd=[];
+			var poit_site=fw.plot_site.split(",");
+			var point_site= new BMap.Point(poit_site[0],poit_site[1]);
+			poitDd.push(point_site);
+			for(var i=0;i<poitDd.length;i++){
+				var myIcon = new BMap.Icon("../images/回收员1.png", new BMap.Size(20,20));
+				var marker = new BMap.Marker(poitDd[i],{icon:myIcon});  // 创建标注
+				map.addOverlay(marker);              // 将标注添加到地图中
+				marker.enableDragging();	//定点可移动
+				marker.addEventListener("click",attribute1);
+			}
+		});
+ 	 },
+	  error:function(){
+		  alert("请求失败！");
+	  },
+  });
+  
+	var pt = new BMap.Point(108.952088,34.239745);
+	var myIcon = new BMap.Icon("../images/回收站1.png", new BMap.Size(20,20));
+	var marker2 = new BMap.Marker(pt,{icon:myIcon});  // 创建标注
+	map.addOverlay(marker2);              // 将标注添加到地图中
+	marker2.enableDragging();	//定点可移动
+	marker2.addEventListener("click",attribute);
+	
+	
+	function attribute(e){
+		var p = e.target;
+		alert("垃圾回收点信息：" + p.getPosition().lng + "," + p.getPosition().lat);   
+	}	
+	//信息窗口的内容定义
+    var content = '<div style="margin:0;line-height:20px;padding:2px;">' +
+                    '地址：北京市海淀区上地十街10号<br/>电话：(010)59928888<br/>简介：百度大厦位于北京市海淀区西二旗地铁站附近，为百度公司综合研发及办公总部。' +
+                  '</div>';
+                  
+                  
+	function attribute1(e){
+		jQuery("#dataManager_delbtn").linkbutton({disabled:false});
+		jQuery("#dataManager_editbtn").linkbutton({disabled:false});  
+		var p = e.target;
+		alert("回收员信息：" + p.getPosition().lng + "," + p.getPosition().lat);
+		var plot_site=p.getPosition().lng+","+p.getPosition().lat;
+		
+		jQuery.ajax({
+			data:{plot_site:plot_site},
+			type:"post",
+			dataType:"json",
+			url:"../plotInfo/findAllPlots.action",
+			success:function(result){
+				console.info(result.plotInfo);
+				if(result!=null){
+					jQuery("#dataEditForm").form("load",result.plotInfo); 
+					jQuery("#dgDetail").datagrid("loadData",result.plotInfo.plot_refInfo);
+				}else{
+					jQuery.messager.alert("提示信息","系统繁忙，请稍候操作！","info");
+				}
+			},
+			error:function(){
+			jQuery.messager.alert("提示信息","系统繁忙，请稍候操作！","error");
+			}
+		})
+	}	
+	
+	
+	  
+   
+    //信息窗口的内容定义
+    var content = '<div style="margin:0;line-height:20px;padding:2px;">' +
+                    '地址：北京市海淀区上地十街10号<br/>电话：(010)59928888<br/>简介：百度大厦位于北京市海淀区西二旗地铁站附近，为百度公司综合研发及办公总部。' +
+                  '</div>';
+    
+    //创建带信息窗口的poi点
+    var searchInfoWindow = new BMapLib.SearchInfoWindow(map, content, {
+        title  : "百度大厦",      //标题
+        width  : 290,             //宽度
+        height : 105,              //高度
+        panel  : "panel",         //检索结果面板
+        enableAutoPan : true,     //自动平移
+        searchTypes   :[
+            BMAPLIB_TAB_SEARCH,   //周边检索
+            BMAPLIB_TAB_TO_HERE,  //到这里去
+            BMAPLIB_TAB_FROM_HERE //从这里出发
+        ]
+    });    
+  
+    	
+    //绘图
+    
+    var overlays = [];
+    //回调获得覆盖物信息
+    var overlaycomplete = function(e){
+        overlays.push(e.overlay);
+        var result = "";
+        if (e.drawingMode == BMAP_DRAWING_MARKER) {
+            result +=e.overlay.getPosition().lng + ',' + e.overlay.getPosition().lat;
+            alert(result);
+            jQuery("#recycle_site").val(result);
+        }
+            
+        if (e.drawingMode == BMAP_DRAWING_CIRCLE) {
+            result += ' 半径：' + e.overlay.getRadius();
+            result += ' 中心点：' + e.overlay.getCenter().lng + "," + e.overlay.getCenter().lat;
+            alert(result);
+        }
+        if (e.drawingMode == BMAP_DRAWING_POLYLINE || e.drawingMode == BMAP_DRAWING_POLYGON || e.drawingMode == BMAP_DRAWING_RECTANGLE) {
+            for(var i=0;i<e.overlay.getPath().length;i++){
+            	result+=e.overlay.getPath()[i].lng+','+e.overlay.getPath()[i].lat+';';
+            }
+            alert(result);
+            jQuery("#plot_scope").val(result);
+        }
+        result += "</p>";
+        $("showOverlayInfo").style.display = "none";
+        $("panel").innerHTML += result; //将绘制的覆盖物信息结果输出到结果面板
+    };
+    
+    
+    var styleOptions = {
+        strokeColor:"red",    //边线颜色。
+        fillColor:"red",      //填充颜色。当参数为空时，圆形将没有填充效果。
+        strokeWeight: 3,       //边线的宽度，以像素为单位。
+        strokeOpacity: 0.8,	   //边线透明度，取值范围0 - 1。
+        fillOpacity: 0.6,      //填充的透明度，取值范围0 - 1。
+        strokeStyle: 'solid' //边线的样式，solid或dashed。
+    };
+    //实例化鼠标绘制工具
+    var drawingManager = new BMapLib.DrawingManager(map, {
+        isOpen: false, //是否开启绘制模式
+        enableDrawingTool: true, //是否显示工具栏
+        drawingToolOptions: {
+            anchor: BMAP_ANCHOR_TOP_RIGHT, //位置
+            offset: new BMap.Size(5, 5), //偏离值
+            scale: 0.8 //工具栏缩放比例
+        },
+        circleOptions: styleOptions, //圆的样式
+        polylineOptions: styleOptions, //线的样式
+        polygonOptions: styleOptions, //多边形的样式
+        rectangleOptions: styleOptions //矩形的样式
+    });
+ 
+    
+    //添加鼠标绘制工具监听事件，用于获取绘制结果
+    drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+    
+ 
+   function $(id){
+        return document.getElementById(id);
+    }
+ 
+
+    
+</script>
+

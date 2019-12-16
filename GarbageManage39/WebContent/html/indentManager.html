@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>回收管理</title>
+		
+		
+		
+		<link href="../css/base.css" rel="stylesheet">
+		<link rel="stylesheet" href="../custom/uimaker/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../custom/uimaker/icon.css">
+		<link rel="stylesheet" href="../css/providers1.css">
+		<script type="text/javascript" src="../custom/jquery.min.js"></script>
+	    <script type="text/javascript" src="../custom/jquery.easyui.min.js"></script>
+	    <script type="text/javascript" src="../custom/easyui-lang-zh_CN.js"></script>
+	</head>
+<body>
+	<div class="container">
+       <table  class="easyui-datagrid"  id="dg" style="width:100%;" title="回收站订单列表" data-options="
+                rownumbers:true,
+                singleSelect:false,
+                autoRowHeight:false,
+                pagination:true,
+                fitColumns:true,
+                striped:true,
+                collapsible:true,
+                toolbar:'#tb',
+                pageSize:10,
+                url:'../indentInfo/findAllIndentInfo.action'
+                ">
+            <thead>
+                <tr>
+                    <th field="ck" checkbox="true" align="center" width="50px"></th>
+                    <th field="indent_id"  align="center" width="110">订单编号</th>
+                    <th field="recycle_name"  align="center" width="110">回收站名称</th>
+                    <th field="indent_type" align="center" width="226" formatter="format1"  >订单类型（0为上门，1为自提）</th>
+                    <th field="classify_if" align="center" width="112" formatter="format2">是否分类（0为是，1为否）</th>
+                    <th field="indent_intime" align="center" width="170">发起时间</th>
+                    <th field="indent_outtime" align="center" width="130">完成时间</th>
+                    <th field="deal_way" align="center" width="136" formatter="format3">交易方式(0为现金交易，1为积分交易）</th>
+                    <th field="inuser_id" align="center" width="120">下单人信息（来自用户表）</th>
+                    <th field="inuser_detail_address" align="center" width="105">下单人详细地址</th>
+                    <th field="receive_user_name" align="center" width="105">接单人信息</th>
+                    <th field="receiving_time" align="center" width="105">接单时间</th>
+                    <th field="refuse_weight" align="center" width="105">回收垃圾重量</th>
+                    <th field="indent_img" align="center" width="105">图片信息</th>
+                    <th field="deal_money" align="center" width="105">交易金额</th>
+                    <th field="deal_integral" align="center" width="105">交易积分</th>
+                    <th field="indent_status" align="center" width="105" formatter="format4">订单状态(0为完成，1为正在处理，2为未完成）</th>
+                    <th field="remark" align="center" width="105">备注</th>
+                    
+                    
+                    
+                    
+                    
+                </tr>
+            </thead>
+        </table>
+      <div id="tb" style="padding:0 30px;">
+        <div class="conditions">
+            <span class="con-span">订单类型: </span>
+            <select id="indentType" name= "indentType" style="width:166px;height:35px;line-height:35px;">
+              <option value= "6"></option>
+              <option value= "0">上门服务</option>
+              <option value= "1">自扔垃圾</option>
+            </select>
+            <span class="con-span">订单状态: </span>
+             <select id="indentStatus" name= "indentStatus" style="width:166px;height:35px;line-height:35px;">
+              <option value= "6"></option>
+              <option value= "0">已完成订单</option>
+              <option value= "1">正在处理</option>
+              <option value= "2">未接订单</option>
+            </select>
+            <a href="javascript:seach()" class="easyui-linkbutton" iconCls="icon-search" data-options="selected:true">查询</a>
+        </div>
+        <div class="opt-buttons">
+            
+            <a href="javascript:receiveOrder()" class="easyui-linkbutton">接收订单</a>
+            <a href="javascript:chooseOrder()" class="easyui-linkbutton">完成订单</a>
+            <a href="#" class="easyui-linkbutton" data-options="selected:true">导出</a>
+            
+        </div>
+      </div>
+    </div>
+    
+    
+    <!-- 接收订单表 -->
+      <div id="dlg2" class="easyui-dialog" iconCls="icon-search" style="width: 800px;height: 480px;padding: 10px 20px" closed="true" buttons="#dlg2-buttons" closable="false"
+      data-options="fitColumns:true">
+	      <div style="height: 40px" align="center">
+		                    订单编号：<input type="text" id="indentId" name="indentId" onkeydown="if(event.keyCode==13) searchRole()"/>
+		          <a href="javascript:searchIndent()" class="easyui-linkbutton" iconCls="icon-search" plain="true">搜索</a>
+		  </div>
+	      <div style="height: 350px;">
+		       <table id="dg2" title="查询结果" class="easyui-datagrid"  fitColumns="true" pagination="true" rownumbers="true" fit="true" singleSelect="false" scrollbarSize="0" url="../indentInfo/findAllIndentInfoByStatus.action"
+		      data-options="checkOnSelect:false,selectOnCheck:false,striped:true,collapsible:true" >
+		            <thead>
+			    <tr>
+			          <th field="ck" checkbox="true" align="center" width="50px"></th>
+			          <th field="indent_id" width="50" align="center" >订单编号</th>
+			          <th field="recycle_name"  align="center" width="110">回收站名称</th>
+			          <th field="indent_type" width="100" align="center">订单类型</th>
+			          <th field="classify_if" width="50" align="center" formatter="format2">是否分类（0为是，1为否）</th>
+			          <th field="indent_intime" align="center" width="100">发起时间</th>
+			          <th field="deal_way" align="center" width="50" formatter="format3">交易方式(0为现金交易，1为积分交易）</th>
+			          <th field="inuser_id" align="center" width="50">下单人信息（来自用户表）</th>
+                      <th field="inuser_detail_address" align="center" width="100">下单人详细地址</th>
+                      <th field="refuse_weight" align="center" width="105">回收垃圾重量</th>
+                      <th field="indent_img" align="center" width="105">图片信息</th>
+                      <th field="user_id" align="center" width="105" data-options="editor:{type:'combobox',options:{
+					   editable:false,panelHeight:'auto',valueField:'user_id',textField:'user_name',url:'../userInfo/findUserInfoByRole.action',
+					  }}">接单人信息</th>
+                      <th field="remark" align="center" width="105">备注</th>
+			   </tr>
+		      </thead>
+		    </table>
+		</div>
+   </div>
+   <div id="dlg2-buttons">
+	      <a href="javascript:receive()" class="easyui-linkbutton" iconCls="icon-ok">接收</a>
+	      <a href="javascript:closeOrderDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	</div> 
+	
+  
+     <!-- 用户操作form表单—START -->
+     <div id="dlg-buttons">
+	      <a href="javascript:saveOrder()" class="easyui-linkbutton" iconCls="icon-ok">提交</a>
+	      <a href="javascript:closeDialog()" class="easyui-linkbutton" iconCls="icon-cancel">关闭</a>
+	 </div> 
+      
+    
+   <div id="dlg4" class="easyui-dialog" style="width: 570px;height: 350px;padding: 10px 20px" closed="true" buttons="#dlg-buttons" closable="false">
+	     <form id="fm" method="post">
+	           <table cellspacing="5px">
+		          <p><input type="hidden" id="indent_id" name="indent_id" /></p>
+		          <tr>
+		               <td>回收垃圾重量：</td>
+		               <td><input type="text" id="refuse_weight" name="refuse_weight" class="easyui-validatebox" required="false"/></td>
+		           </tr>
+		           <tr> 
+		               <td>交易金额：</td>
+		               <td><input type="text" id="deal_money" name="deal_money" class="easyui-validatebox" required="true"/></td>
+		          </tr>
+		          <tr>
+		               <td>交易积分：</td>
+		               <td><input type="text" id="deal_integral" name="deal_integral" class="easyui-validatebox" required="true"/></td>
+		          </tr>
+		     </table>
+        </form>
+  </div>
+  <!-- 用户操作form表单—END --> 
+    
+    
+    
+    
+    
+    <script type="text/javascript">
+    
+    
+	    function format1(val,row){
+			if(val==0){
+				return"上门服务";
+			}else if(val==1){
+				return "自扔垃圾";
+			}
+		}
+	    
+	    function format2(val,row){
+			if(val==0){
+				return "是";
+			}else if(val==1){
+				return "否";
+			}
+	    }
+	    
+		function format3(val,row){
+			if(val==0){
+				return "现金交易";
+			}else if(val==1){
+				return "积分交易";
+			}
+		}
+				
+		function format4(val,row){
+			if(val==0){
+				return "<font color='green'>"+ "已完成订单" +"</font>";
+			}else if(val==1){
+				return "正在处理";
+			}else if(val==2){
+				return "<font color='red'>" + "未接订单" + "</font>";
+			}
+		} 
+		
+    
+        
+           function receiveOrder(){
+        	$("#dlg2").dialog("open").dialog("setTitle","未接收的订单列表");
+        	
+        	
+        	/* var editIndex_dg2=$("#dg2").datagrid("getRows").length;//定位选中该行的下标 
+        	for(var i=0;i<editIndex_dg2;i++){
+        		$("#dg2").datagrid("beginEdit",i);//开启行编辑
+        	}
+        	alert(editIndex_dg2); */
+        	
+        	
+        	$("#dg2").datagrid({
+				onClickRow:function(){//数据网格行点击事件
+					var rows=$("#dg2").datagrid("getSelections");//获取选中行的数据
+					$.each(rows,function(index,item){
+						var index1=$("#dg2").datagrid("getRowIndex",item);
+						$("#dg2").datagrid("beginEdit",index1);
+					});
+				}	
+					
+			});
+
+ 
+
+           }
+           
+           function receive(){
+        	   var endRows=$("#dg2").datagrid("getRows");//获取子表所有的行级数据
+   			
+   			$.each(endRows,function(index,item){//遍历子表所有行级信息，其中index表示角标，item表示该行的行级数据
+   				$("#dg2").datagrid("endEdit",index);//结束行编辑
+   				$("#dg2").datagrid("cancelEdit",index);//取消行编辑
+   			});
+        	  var selectOrder=$("#dg2").datagrid("getSelections");
+        	  if(selectOrder.length==0){
+        		  $.messager.alert("系统提示","请选择订单","info");
+        		  return false; 
+        	  }
+        	  var indentIds=[];
+        	  for(var i=0;i<selectOrder.length;i++){
+        		  indentIds.push(selectOrder[i].indent_id);
+        	  }
+        	  var userIds=[];
+        	  for(var i=0;i<selectOrder.length;i++){
+        		  userIds.push(selectOrder[i].user_id);
+        		  }
+        	  var indentId=indentIds.join(",");
+        	  var userId=userIds.join(",");
+        	  
+        	  $.post("../indentInfo/updateIndentStatus.action",{indentIds:indentId,userIds:userId},function(result){
+	    			var result=eval('('+result+')');
+	    			if(result.msg){
+	    				$.messager.alert("系统提示","您已接收<font color='red' size='5'>"+result.count+"</font>订单！");
+						$("#dg2").datagrid("reload"); //加载主页面
+	    			}else{
+	    				$.messager.alert('系统提示',result.errorMsg);
+	    			}
+	    		});
+        	     
+        	
+        	  }
+        	
+           
+           function closeOrderDialog(){
+        	   $("#dlg2").dialog("close");
+        	   $("#dg").datagrid("reload");
+           }
+           
+           
+           function chooseOrder(){
+        	   var selectOrderInfo=$("#dg").datagrid("getSelections");
+        	   if(selectOrderInfo.length!=1){
+        		   $.messager.alert("系统提示","请选择一条正在进行的订单","info");
+        		   return false;
+        	   }else if(selectOrderInfo[0].indent_status!=1){
+        		   $.messager.alert("系统提示","请选择一条正在进行的订单","info");
+        		   return false;  
+        	   }
+        	   $("#dlg4").dialog("open").dialog("setTitle","具体信息");
+        	   if(selectOrderInfo[0].deal_way==0){
+        		   $("#deal_money").validatebox("enableValidation");
+       		       $("#deal_money").removeAttr("disabled","disabled");  
+        		   $("#deal_integral").validatebox("disableValidation");//关闭验证
+       			   $("#deal_integral").attr("disabled","disabled");//禁用form表单
+        	   }else if(selectOrderInfo[0].deal_way==1){
+        		    $("#deal_integral").validatebox("enableValidation");//开启验证
+         			$("#deal_integral").removeAttr("disabled","disabled");//开启用form表单
+        		    $("#deal_money").validatebox("disableValidation");
+        		    $("#deal_money").attr("disabled","disabled");  
+        	   }
+
+           }
+           
+          function closeDialog(){
+        	 $("#dlg4").dialog("close");
+      		$("#fm").form('clear'); 
+          }
+          
+          function saveOrder(){
+        	  var selectOrderInfo=$("#dg").datagrid("getSelections");
+        	  var  indentId=selectOrderInfo[0].indent_id;
+        	  $("#indent_id").val(indentId);
+        	   $("#fm").form("submit",{
+        		   url:"../indentInfo/saveIndentInfo.action",
+        		   onSubmit:function(){
+        			   return $(this).form("validate"); 
+        		   },
+        		  success:function(result){
+        			  var result=eval('('+result+')');
+        			  if(result.msg){
+        				    $.messager.alert("系统提示","完成订单","info");
+        					$("#fm").form("clear");
+        					closeDialog();
+        					$("#dg").datagrid("reload");
+        			  }else{
+        				  $.messager.alert("系统提示","<font color=red>"+result.errorMsg+"</font>");
+        			  }
+        		  }
+        	   });
+           }  
+          
+          function seach(){
+        	  $("#dg").datagrid("load",{
+        		  indentType:$("#indentType").val(),
+        	      indentStatus:$("#indentStatus").val()
+              	}); 
+        	  
+          }
+      
+    </script>
+</body> 
+</body>
+</html>

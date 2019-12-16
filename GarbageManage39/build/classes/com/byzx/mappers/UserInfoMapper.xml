@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.UserInfoDao">
+
+	<resultMap type="UserInfo" id="UserInfoResult">
+		<result property="user_id" column="user_id"/>
+		<result property="user_name" column="user_name"/>
+		<result property="user_pwd" column="user_pwd"/>
+		<result property="user_phone" column="user_phone"/>
+		<result property="user_idCard" column="user_idCard"/>
+		<result property="user_integral" column="user_integral"/>
+		<result property="role_id" column="role_id"/>
+		<result property="plot_id" column="plot_id"/>
+		<result property="user_site" column="user_site"/>
+		<result property="state" column="state"/>
+		<result property="delFlag" column="delFlag"/>
+		<result property="createtime" column="createtime"/>
+		<result property="remark" column="remark"/>
+		<result property="role_name" column="role_name"/>
+	</resultMap>
+	
+	<select id="login" parameterType="UserInfo" resultMap="UserInfoResult">
+		select * from t_userInfo
+		where delFlag=0 and user_name=#{user_name} and user_pwd=MD5(#{user_pwd})
+	</select>
+	
+	<select id="findReceiveUserName" parameterType="Integer" resultType="String">
+		select user_name from t_userInfo
+		where delFlag=0 and user_id=#{user_id}
+	</select>
+
+	<select id="findAllUserInfo" resultMap="UserInfoResult">
+		select 
+				user.user_id,
+				user.user_name,
+				user.user_pwd,
+				user.user_phone,
+				user.user_idCard,
+				user.user_integral,
+				user.role_id,
+				user.plot_id,
+				user.user_site,
+				user.state,
+				user.delFlag,
+				user.createtime,
+				user.remark,
+				role.role_name
+		from 
+				t_userInfo user 
+		left join
+				t_roleInfo role
+		on 
+			user.role_id=role.role_id
+		where 
+			user.delFlag=0
+			<if test="seachUserName!=null">
+				and user.user_name like concat('%',#{seachUserName},'%')
+			</if>
+			order by createtime desc
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	
+	<select id="findAllUserInfoByRole" resultMap="UserInfoResult">
+		select 
+				user.user_id,
+				user.user_name,
+				user.user_pwd,
+				user.user_phone,
+				user.user_idCard,
+				user.user_integral,
+				user.role_id,
+				user.plot_id,
+				user.user_site,
+				user.state,
+				user.delFlag,
+				user.createtime,
+				user.remark,
+				role.role_name
+		from 
+				t_userInfo user 
+		left join
+				t_roleInfo role
+		on 
+			user.role_id=role.role_id
+		where 
+			user.delFlag=0
+		and
+		    role.role_name="回收员"
+			<if test="seachUserName!=null">
+				and user.user_name like concat('%',#{seachUserName},'%')
+			</if>
+			order by createtime desc
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	
+	
+	<select id="findUserInfoByRole" resultMap="UserInfoResult">
+		select 
+				user.user_id,
+				user.user_name,
+				user.user_pwd,
+				user.user_phone,
+				user.user_idCard,
+				user.user_integral,
+				user.role_id,
+				user.plot_id,
+				user.user_site,
+				user.state,
+				user.delFlag,
+				user.createtime,
+				user.remark,
+				role.role_name
+		from 
+				t_userInfo user 
+		left join
+				t_roleInfo role
+		on 
+			user.role_id=role.role_id
+		where 
+			user.delFlag=0
+		and
+		    role.role_name="回收员"
+	</select>
+	
+	<select id="findAllUserInfoConut" resultType="Integer" parameterType="Map">
+		select count(*) from t_userInfo where delFlag=0
+			<if test="seachUserName!=null">
+				and user_name like concat('%',#{seachUserName},'%')
+			</if>
+	</select>
+	
+	<select id="findUserInfoByUserName" parameterType="String" resultType="Integer">
+		select count(user_name) from t_userInfo where delFlag=0 and user_name=#{user_name}
+	</select>
+	
+	<insert id="saveUserInfo" parameterType="UserInfo">
+		insert into 
+			t_userInfo(
+				user_name,
+				user_pwd,
+				user_phone,
+				user_idCard,
+				user_integral,
+				role_id,
+				plot_id,
+				user_site,
+				state,
+				delFlag,
+				createtime,
+				remark
+			) values(
+				#{user_name},
+				#{user_pwd},
+				#{user_phone},
+				#{user_idCard},
+				#{user_integral},
+				#{role_id},
+				#{plot_id},
+				#{user_site},
+				#{state},
+				#{delFlag},
+				#{createtime},
+				#{remark}
+			)
+	</insert>
+	
+	<update id="updateUserInfo" parameterType="UserInfo">
+		update 
+			t_userInfo
+		set 
+			user_pwd=#{user_pwd},
+			user_phone=#{user_phone},
+			user_idCard=#{user_idCard},
+			user_integral=#{user_integral},
+			role_id=#{role_id},
+			remark=#{remark}
+		where
+			user_id=#{user_id}
+	</update>
+	
+	<update id="deleteUserInfo" parameterType="Integer">
+		update t_userInfo set delFlag=1 where user_id=#{user_id}
+	</update>
+</mapper> 
+
+
+
+
+
+
+

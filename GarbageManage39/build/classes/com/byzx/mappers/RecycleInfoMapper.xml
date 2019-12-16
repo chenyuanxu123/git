@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.RecycleInfoDao">
+
+	<resultMap type="RecycleInfo" id="recycleInfoResult">
+		<id property="recycle_id" column="recycle_id"/>
+		<result property="recycle_name" column="recycle_name"/>
+		<result property="recycle_site" column="recycle_site"/>
+		<result property="recycle_iconCls" column="recycle_iconCls"/>
+		<result property="recycle_capacity" column="recycle_capacity"/>
+		<result property="full_status" column="full_status"/>
+		<result property="state" column="state"/>
+		<result property="delFlag" column="delFlag"/>
+		<result property="createtime" column="createtime"/>
+		<result property="remark" column="remark"/>
+		<association property="recycleLinkmanInfo" column="recycle_id"  javaType="RecycleLinkmanInfo" 
+		select="com.byzx.dao.RecycleLinkmanInfoDao.findAllRecycleInfoById"></association>
+	</resultMap>
+	
+	
+	<!-- 回收站所有信息查询 -->
+	<select id="findAllRecycleInfo"  parameterType="Map"  resultMap="recycleInfoResult">
+		select 
+		    recycle_id,
+		   	recycle_name,
+		   	recycle_site,
+		   	recycle_iconCls,
+		   	recycle_capacity,
+		   	full_status,
+		   	createtime,
+		   	remark,
+		   	state
+		from 
+			t_recycle
+		
+		where 
+			delFlag=0
+		<if test="seachByName!=null">
+					and recycle_name like concat('%',#{seachByName},'%')
+		</if>
+		
+		order by
+			createTime desc
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	
+	<!-- 通过位置对回收站所有信息查询 -->
+	<select id="findRecycleInfoBySite"  parameterType="String"  resultMap="recycleInfoResult">
+		select 
+		    recycle_id,
+		   	recycle_name,
+		   	recycle_site,
+		   	recycle_iconCls,
+		   	recycle_capacity,
+		   	full_status,
+		   	createtime,
+		   	remark,
+		   	state
+		from 
+			t_recycle
+		
+		where 
+			delFlag=0
+		and recycle_site=#{recycle_site}
+		
+	</select>
+	
+	
+    <!-- 回收站所有信息条数 -->
+   <select id="findAllRecycleInfoConut" resultType="Integer" parameterType="Map">
+		select count(*) from t_recycle where delFlag=0	
+		<if test="seachByName!=null">
+				and recycle_name like concat('%',#{seachByName},'%')
+		</if>
+	</select> 
+    
+    <!-- 查找新增回收站的id -->
+    <select id="getMaxDataId" resultType="Integer">
+		select max(recycle_id) from t_recycle  where delFlag=0
+	</select>
+	
+	<!--通过id对回收站名字查询 -->
+	<select id="findRecycleName" parameterType="Integer" resultType="String">
+		select recycle_name from t_recycle
+		where delFlag=0 and recycle_id=#{recycle_id}
+	</select>
+	
+	<!-- 回收站所有名字查询 -->
+	 <select id="findRecycleNames" resultType="RecycleInfo">
+		select * from t_recycle
+		where delFlag=0 
+	</select>
+	
+	<!-- 回收站所有位置查询 -->
+	 <select id="findRecycleSite" resultType="String">
+		select recycle_site  
+		from t_recycle
+		where delFlag=0 
+	</select>
+	
+	<!-- 回收站信息新增 -->
+	<insert id="saveRecycleInfo" parameterType="RecycleInfo">
+		insert into 
+			t_recycle(
+			    recycle_id,
+				recycle_name,
+				recycle_site,
+				recycle_iconCls,
+				recycle_capacity,
+		   	    full_status,
+				remark,
+				state,
+				createtime
+			) values(
+			    #{recycle_id},
+				#{recycle_name},
+				#{recycle_site},
+				#{recycle_iconCls},
+				#{recycle_capacity},
+				#{full_status},
+				#{remark},
+				#{state},
+				#{createtime}
+			)
+	</insert>
+	
+	<!-- 回收站信息修改 -->
+	<update id="updateRecycleInfo" parameterType="RecycleInfo">
+		update 
+			t_recycle
+		<set>
+			<if test="recycle_name!=null">
+				recycle_name=#{recycle_name},
+			</if>
+			<if test="recycle_site!=null">
+				recycle_site=#{recycle_site},
+			</if>
+			<if test="recycle_iconCls!=null">
+				recycle_iconCls=#{recycle_iconCls},
+			</if>
+			<if test="recycle_capacity!=null">
+				recycle_capacity=#{recycle_capacity},
+			</if>
+			<if test="full_status!=0">
+				full_status=#{full_status},
+			</if>
+			<if test="delFlag!=0">
+				delFlag=#{delFlag}
+			</if>
+			<if test="remark!=null">
+				remark=#{remark},
+			</if>
+			<if test="state!=0">
+				state=#{state}
+			</if>
+		</set>
+		<where>
+			and recycle_id=#{recycle_id}
+		</where>
+	</update>
+	
+	
+	<!-- 回收站信息逻辑删除 --> 
+	<update id="deleteRecycleInfo" parameterType="Integer">
+		update
+			t_recycle
+		set
+			delflag=1
+		where 
+			recycle_id=#{recycle_id}
+	</update>
+	
+</mapper> 
+
+
+
+
+
+
+

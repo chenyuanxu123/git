@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>数据字典</title>
+		<link rel="stylesheet" type="text/css" href="../css/platform.css">
+		<link rel="stylesheet" type="text/css" href="../css/base.css">
+		<link rel="stylesheet" type="text/css" href="../custom/uimaker/easyui.css">
+		<link rel="stylesheet" type="text/css" href="../custom/uimaker/icon.css">
+		<script type="text/javascript" src="../custom/jquery.min.js"></script>
+	    <script type="text/javascript" src="../custom/jquery.easyui.min.js"></script>
+	    <script type="text/javascript" src="../custom/easyui-lang-zh_CN.js"></script>
+	</head>
+	<body>
+		<div class="easyui-layout" data-options="fit:true">
+			<div data-options="region:'north'"
+				style="height: 38px;width: 100%; background-color: #E3E3E3;">
+				<div style="float: right; padding-right: 20px;line-height: 35px">
+					<span style="font-size: 15px">名称:</span> <input class="easyui-validatebox" style="width: 120px;height: 28px"
+						name="searchValue" id="searchValue"> 
+						<a href="javascript:search()" class="easyui-linkbutton" iconCls="icon-search" data-options="selected:true">查询</a>
+				</div>
+				<div style="width: 100%;">
+					<a id="dataManager_newbtn" href="javascript:newDataInfo()"
+						class="easyui-linkbutton" iconCls="icon-add" plain="true" >新建</a>
+				    <a  id="dataManager_editbtn" href="javascript:editDataInfo()"
+						class="easyui-linkbutton" iconCls="icon-edit" plain="true" >修改</a> 
+					<a	id="dataManager_delbtn" href="javascript:delDataInfo()"
+						class="easyui-linkbutton" iconCls="icon-remove" plain="true" >删除</a> 
+				    <a	id="dataManager_savebtn" href="javascript:saveDataInfoForm()"
+						class="easyui-linkbutton" iconCls="icon-save" plain="true" >保存</a>
+					<a  id="dataManager_canclebtn" href="javascript:cancleDataEditer()"
+						class="easyui-linkbutton" iconCls="icon-cancel" plain="true">取消</a>
+				</div>
+			</div>
+			<div data-options="region:'west',split:true"
+				style="width: 375px;">
+				<div class="easyui-layout" data-options="fit:true">		
+					<div data-options="region:'center'"> 		
+						<table id="dg" title="数据字典主表列表" class="easyui-datagrid" fitColumns="true" scrollbarSize="0" pagination="true" rownumbers="true" url="../dataInfo/findAllDataInfo.action" fit="true" singleSelect="true">
+					     	<thead>
+					     		<tr>
+									<th field="data_name" width="50" align="center" data-options="sortable:true">名称</th>
+									<th field="createTime" width="50" align="center" sortable="true">创建时间</th>
+									<th field="remark" width="50" align="center">备注</th>
+								</tr>
+					   		</thead>
+					   	</table>
+					</div>	
+				</div>
+			</div>
+			<div data-options="region:'center'" style="height: 100%;width: 100%;">
+				<div id="tab_show" align="center" title="主表编辑框" class="easyui-panel" style="height:125px;background-color: #F7F7F7;width: 100%;" >
+					<form id="dataEditForm">
+						<input type="hidden" name="data_id" id="data_id" />
+						<table>
+							<tr height="40px">
+								<td>
+									<label>名称：</label>
+								</td>
+								<td>
+									<input class="easyui-validatebox" type="text"
+									id="data_name" name="data_name" data-options="required:true" maxlength="20" width="200px"/>
+								</td>
+							</tr>
+							<tr height="40px">
+								<td>
+									<label>备注：</label>
+								</td>
+								<td>
+									<input class="easyui-validatebox" type="text"
+									id="remark" name="remark" data-options="required:true" maxlength="200" width="200px" height="400px" />
+								</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+				
+				<div class="easyui-tabs" style="height: 382px;width: 100%;">
+					<div title="数据字典子表信息列表" fit="true" data-options="border:true">
+						<table id="dgDetail" width="100%" class="easyui-datagrid" fitColumns="true" rownumbers="true" scrollbarSize="0"  fit="true" toolbar="#tb">
+					     	<thead>
+					     		<tr>
+									<th field="cb" checkbox="true" align="center"></th>
+									<th field="dataDetail_name" width="50" align="center" data-options="editor:{type:'validatebox',options:{
+											disabled:false,required: true}}">名称</th>
+									<th field="createTime" width="50" align="center">创建时间</th>
+									<th field="remark" width="50" align="center" data-options="editor:{type:'validatebox',options:{
+											disabled:false}}">备注</th>
+								</tr>
+					   		</thead>
+					   	</table>
+						<div id="tb">
+							<div>
+								<a href="javascript:dataDetailManager()" class="easyui-linkbutton" iconCls="icon-add" plain="true" id="dataDeatilAdd">添加</a>
+								<a href="javascript:dataDetailModify()" class="easyui-linkbutton" iconCls="icon-edit" plain="true" id="dataDeatilUpdate">修改</a>
+								<a href="javascript:dataDetailDelete()" class="easyui-linkbutton" iconCls="icon-remove" plain="true" id="dataDeatilDel">删除</a>
+								<a href="javascript:saveDataDetail()" class="easyui-linkbutton" iconCls="icon-save" plain="true" id="dataDeatilSave">保存</a>
+					      	</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div> 
+	</body>
+	
+	<script type="text/javascript">
+	
+		var addUrl="../dataInfo/saveDataInfo.action";
+		var updateUrl="../dataInfo/updateDataInfo.action";
+		var curUrl="";
+	
+		//FORM表单序列化转对象
+		function serializeObject(form) {
+			var o = {};
+			$.each(form.serializeArray(), function(index) {
+				if (o[this['name']]) {
+					o[this['name']] = o[this['name']] + "," + this['value'];
+				} else {
+					o[this['name']] = this['value'];
+				}
+			});
+			return o;
+		}	
+	
+		$(function(){
+			init();
+			$("#dg").datagrid({
+				onClickRow:function(){//数据网格datagrid行点击事件
+					var row=$("#dg").datagrid("getSelected");//获取选中行的数据
+					$("#dataEditForm").form("load",row);//将获取到的数据加载到form表单
+					$("#dgDetail").datagrid("loadData",row.dataDetailInfo);//将获取到的子表数据加载到子表的datagrid
+				}
+			});
+		});
+		
+		//点击取消按钮触发事件
+		function cancleDataEditer(){
+			init();
+		}
+		
+		//页面的初始化
+		function init(){
+			$("#dataEditForm").form("clear");	//清空form表单
+			$("#dgDetail").datagrid("loadData",{	//清空子表数据
+				total:0,
+				rows:[]
+			});
+			$("#dataEditForm").form("disableValidation");//关闭form表单验证
+			$("#dataEditForm :input").attr("disabled","disabled");	//禁用form表单
+			
+			$("#dataManager_savebtn").linkbutton({disabled:true});	//禁用按钮	
+			$("#dataManager_canclebtn").linkbutton({disabled:true});
+			$("#dataManager_editbtn").linkbutton({disabled:false});	//启用按钮
+			$("#dataManager_delbtn").linkbutton({disabled:false});
+			$("#dataManager_newbtn").linkbutton({disabled:false});
+			
+			$("#dataDeatilAdd").linkbutton({disabled:true});
+			$("#dataDeatilUpdate").linkbutton({disabled:true});
+			$("#dataDeatilDel").linkbutton({disabled:true});
+			$("#dataDeatilSave").linkbutton({disabled:true});
+			$("#dg").datagrid('clearSelections');//清空选中的数据
+			$('#dg').datagrid("unselectAll");	//取消选中
+			curUrl="";
+		}
+		
+		//点击主表新增按钮触发事件
+		function newDataInfo(){
+			$("#dataEditForm").form("clear");
+			$("#dgDetail").datagrid("loadData",{
+				total:0,
+				rows:[]
+			});
+			$("#dataEditForm :input").removeAttr("disabled","disabled");
+			$("#dataEditForm").form("enableValidation");
+			
+			$("#dataManager_editbtn").linkbutton({disabled:true});
+			$("#dataManager_delbtn").linkbutton({disabled:true});
+			$("#dataManager_canclebtn").linkbutton({disabled:false});
+			
+			$("#dataDeatilAdd").linkbutton({disabled:false});
+			$("#dataDeatilUpdate").linkbutton({disabled:false});
+			$("#dataDeatilDel").linkbutton({disabled:false});
+			$("#dataDeatilSave").linkbutton({disabled:false});
+			curUrl=addUrl;
+		}
+		
+		//点击主表修改按钮触发事件
+		function editDataInfo(){
+			var row=$("#dg").datagrid("getSelected");
+			if(row==null){
+				$.messager.alert("提示信息","请选择一条需要修改的数据","warning");
+				return false;
+			}
+			
+			$("#dataEditForm :input").removeAttr("disabled","disabled");
+			$("#dataEditForm").form("enableValidation");
+			
+			$("#dataManager_newbtn").linkbutton({disabled:true});
+			$("#dataManager_delbtn").linkbutton({disabled:true});
+			$("#dataManager_canclebtn").linkbutton({disabled:false});
+			
+			$("#dataDeatilAdd").linkbutton({disabled:false});
+			$("#dataDeatilUpdate").linkbutton({disabled:false});
+			$("#dataDeatilDel").linkbutton({disabled:false});
+			$("#dataDeatilSave").linkbutton({disabled:false});
+			curUrl=updateUrl;
+		}
+		
+		//点击子表新增按钮触发事件
+		function dataDetailManager(){
+			$("#dgDetail").datagrid("appendRow",{});//datagrid追加一行空数据
+			var editIndex_dgDetail=$("#dgDetail").datagrid("getRows").length-1;//定位选中该行的下标
+			$("#dgDetail").datagrid("beginEdit",editIndex_dgDetail);
+		}
+		
+		//点击子表保存按钮触发事件
+		function saveDataDetail(){
+			var endRows=$("#dgDetail").datagrid("getRows");//获取子表所有的行级数据
+			
+			$.each(endRows,function(index,item){//遍历子表所有行级信息，其中index表示角标，item表示该行的行级数据
+				$("#dgDetail").datagrid("endEdit",index);//结束行编辑
+				$("#dgDetail").datagrid("cancelEdit",index);//取消行编辑
+			});
+			
+			$("#dataManager_savebtn").linkbutton({disabled:false});
+		}
+		
+		//点击子表修改按钮触发事件
+		function dataDetailModify(){
+			var rows=$("#dgDetail").datagrid("getSelections");//获取子表所有的行级数据
+			$.each(rows,function(index,item){
+				var index1=$("#dgDetail").datagrid("getRowIndex",item);
+				$("#dgDetail").datagrid("beginEdit",index1);
+			});
+		}
+		
+		//点击子表删除按钮触发事件
+		function dataDetailDelete(){
+			var rows=$("#dgDetail").datagrid("getSelections");
+			if(rows.length<1){
+				$.messager.alert("提示信息","请选择要删除的数据","warning");
+				return false;
+			}
+			$.each(rows,function(index,item){
+				var index1=$("#dgDetail").datagrid("getRowIndex",item);
+				$("#dgDetail").datagrid("deleteRow",index1);
+			}); 
+		}
+		
+		//单击主表保存按钮触发事件
+		function saveDataInfoForm(){
+			var validate=$("#dataEditForm").form("enableValidation");
+			var form=$("#dataEditForm");
+			var dataInfo=serializeObject(form);
+			var dataDetailInfo=$("#dgDetail").datagrid("getRows");
+			if(dataDetailInfo){
+				dataInfo.dataDetailInfo=dataDetailInfo;
+			}
+			
+			console.info(JSON.stringify(dataInfo));
+			
+			$.ajax({
+				type:"post",
+				url:curUrl,
+				contentType:'application/json;charset=UTF-8',	//如果Handler中接收数据类型使用@RequestBody，ajax传值类型必须是application/json格式
+				data:JSON.stringify(dataInfo),
+				dataType:"json",
+				success:function(result){
+					if(result.msg){
+						$.messager.alert("提示信息","保存成功","info");
+						$("#dg").datagrid("reload");
+						init();
+					}else{
+						$.messager.alert("提示信息","系统繁忙，请稍候操作！","warning");
+					}
+					curUrl="";
+				},
+				error:function(){
+					$.messager.alert("提示信息","系统繁忙，请稍候操作！","error");
+				}
+			});
+		}
+		
+		function delDataInfo(){
+			var row=$("#dg").datagrid("getSelected");
+			if(row==null){
+				$.messager.alert("提示信息","请选择需要删除的数据","warning");
+				return false;
+			}
+			$.messager.confirm("提示信息","您确认要删除该数据吗?",function(r){
+				if(r){
+					$.ajax({
+						url:"../dataInfo/deleteDataInfo.action",
+						data:{data_id:row.data_id},
+						dataType:"json",
+						type:"post",
+						success:function(result){
+							if(result.msg){
+								$.messager.alert("提示信息","删除成功！","info");
+								$("#dg").datagrid("reload");
+								init();
+							}else{
+								$.messager.alert("提示信息","系统繁忙，请稍候操作！","warning");
+							}
+						},
+						error:function(){
+							$.messager.alert("提示信息","系统繁忙，请稍候操作！","error");
+						}
+					});
+				}
+			});
+			
+		}
+		
+	</script>
+</html>
+
+
+
+
+
+
+
+

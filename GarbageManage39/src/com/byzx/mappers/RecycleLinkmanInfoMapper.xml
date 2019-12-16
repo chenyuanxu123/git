@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.RecycleLinkmanInfoDao">
+
+	<resultMap type="RecycleLinkmanInfo" id="recycleLinkmanInfoResult">
+		<id property="recycle_linkman_id" column="recycle_linkman_id"/>
+		<result property="recycle_id" column="recycle_id"/>
+		<result property="user_id" column="user_id"/>
+		<result property="delFlag" column="delFlag"/>
+		<result property="createtime" column="createtime"/>
+		<result property="remark" column="remark"/>
+		<result property="state" column="state"/>
+		<result property="user_name" column="user_name"/>
+	</resultMap>
+	
+	<select id="findAllRecycleInfoById"  parameterType="Map"  resultMap="recycleLinkmanInfoResult">
+		select 
+		   	recycle.recycle_linkman_id,
+		   	recycle.recycle_id,
+		   	recycle.createtime,
+		   	recycle.remark,
+		   	user.user_name,
+		   	user.user_id,
+		   	recycle.state
+		from 
+			t_recycle_linkman recycle
+		inner join
+		    t_userinfo user
+		on
+		  recycle.user_id=user.user_id
+		where 
+			recycle.delFlag=0
+		and
+		   recycle.recycle_id=#{recycle_id}
+		<!--  <if test="seachByName!=null">
+				and recycle_name like concat('%',#{seachByName},'%')
+		</if> -->
+		</select>
+		
+	<!-- <select id="findAllRecycleInfoConut" resultType="Integer" parameterType="Map">
+		select count(*) from t_recycle where delFlag=0	
+		<if test="seachByName!=null">
+				and recycle_name like concat('%',#{seachByName},'%')
+		</if>
+	</select> -->
+	
+	<insert id="saveRecycleLinkmanInfo" parameterType="Map">
+		insert into 
+			t_recycle_linkman(
+				recycle_linkman_id,
+				recycle_id,
+				user_id,
+				remark,
+				state,
+				createtime
+			) values(
+				#{recycle_linkman_id},
+				#{maxId},
+				#{user_id},
+				#{remark},
+				#{state},
+				#{createtime}
+			)
+	</insert>
+	
+	<update id="updateRecycleLinkmanInfo" parameterType="Map">
+		update 
+			t_recycle_linkman
+		<set>
+			<if test="user_id!=0">
+				user_id=#{user_id},
+			</if>
+			<if test="createtime!=null">
+				createtime=#{createtime}
+			</if>
+			<if test="remark!=null">
+				remark=#{remark},
+			</if>
+		</set>
+		<where>
+			and recycle_id=#{recycle_id}
+		</where>
+	</update>
+	
+	<update id="deleteRecycleLinkmanInfoByDId" parameterType="Integer">
+		update
+			t_recycle_linkman
+		set
+			delflag=1
+		where 
+			recycle_id=#{recycle_id}
+	</update>
+	
+</mapper> 
+
+
+
+
+
+
+

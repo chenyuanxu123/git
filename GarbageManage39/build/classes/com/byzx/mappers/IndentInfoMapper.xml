@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.IndentInfoDao">
+
+	<resultMap type="IndentInfo" id="IndentInfoResult">
+		<result property="indent_id" column="indent_id"/>
+		<result property="recycle_id" column="recycle_id"/>
+		<result property="indent_type" column="indent_type"/>
+		<result property="classify_if" column="classify_if"/>
+		<result property="indent_intime" column="indent_intime"/>
+		<result property="indent_outtime" column="indent_outtime"/>
+		<result property="deal_way" column="deal_way"/>
+		<result property="inuser_id" column="inuser_id"/>
+		<result property="inuser_detail_address" column="inuser_detail_address"/>
+		<result property="receive_user_id" column="receive_user_id"/>
+		<result property="receiving_time" column="receiving_time"/>
+		<result property="refuse_weight" column="refuse_weight"/>
+		<result property="indent_img" column="indent_img"/>
+		<result property="deal_money" column="deal_money"/>
+		<result property="deal_integral" column="deal_integral"/>
+		<result property="indent_status" column="indent_status"/>
+		<result property="state" column="state"/>
+		<result property="remark" column="remark"/>
+		<result property="delFlag" column="delFlag"/>
+		<result property="createtime" column="createtime"/>
+
+	</resultMap>
+	
+	<select id="findAllIndentInfo" parameterType="Map" resultMap="IndentInfoResult">
+		select *
+		from t_indent  
+		where delFlag=0 
+		<if test="indent_type==0||indent_type==1"> and indent_type=#{indent_type}</if>
+		<if test="indent_status==0||indent_status==1||indent_status==2">and indent_status=#{indent_status}</if>
+	</select>
+	
+	 <select id="findAllIndentInfoConut" parameterType="Map" resultType="Integer">
+		select count(*) from t_indent where delFlag=0
+	</select>
+	
+	<select id="findAllIndentInfoByStatus" parameterType="Map" resultType="IndentInfo">
+	   select*
+		from t_indent  
+		where delFlag=0 
+		and  indent_status=2
+	</select>
+	
+	<select id="findAllIndentType" resultType="IndentInfo">
+	   select indent_type
+		from t_indent  
+		where delFlag=0 
+	</select>
+	
+	<select id="findAllIndentStatus" resultType="IndentInfo">
+	   select indent_status
+		from t_indent  
+		where delFlag=0 
+	</select>
+	
+	<select id="findAllIndentInfoByStatusConut" parameterType="Map" resultType="Integer">
+		select count(*) from t_indent where delFlag=0
+	</select>
+	
+	<update id="updateIndentStatus" parameterType="IndentInfo">
+		update t_indent
+	    set 
+	       indent_status=1,
+	       receiving_time=#{receiving_time},
+	       receive_user_id=#{receive_user_id}
+	    where indent_id=#{indent_id}
+	</update>
+	
+	
+	<update id="saveIndentInfo" parameterType="Integer">
+		update t_indent 
+		<set>
+			<if test="indent_outtime!=null">
+				indent_outtime=#{indent_outtime},
+			</if>
+			<if test="deal_money!=0">
+				deal_money=#{deal_money},
+			</if>
+			<if test="deal_integral!=0">
+				deal_integral=#{deal_integral},
+			</if>
+			<if test="refuse_weight!=0">
+				refuse_weight=#{refuse_weight},
+			</if>
+				indent_status=#{indent_status}
+		</set>
+		<where>
+			and indent_id=#{indent_id}
+		</where>
+	</update>
+
+</mapper> 
+
+
+
+
+
+
+

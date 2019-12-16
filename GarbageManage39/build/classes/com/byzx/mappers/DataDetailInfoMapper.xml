@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.DataDetailInfoDao">
+
+	<resultMap type="DataDetailInfo" id="resultDataDetailInfo">
+		<id property="dataDetail_id" column="dataDetail_id" />
+		<result property="data_id" column="data_id" />
+		<result property="dataDetail_name" column="dataDetail_name" />
+		<result property="createTime" column="createTime" />
+		<result property="delflag" column="delflag" />
+		<result property="remark" column="remark" />
+		<result property="state" column="state" />
+	</resultMap>
+	
+	
+	<select id="findDataDetailInfoByDId" parameterType="Integer" resultMap="resultDataDetailInfo">
+		select 
+			dataDetail_id,
+			data_id,
+			dataDetail_name,
+			createTime,
+			delflag,
+			remark,
+			state
+		from
+			t_dataDetailInfo
+		where 
+			delflag=0
+			and data_id=#{data_id}
+	</select>
+	
+	<insert id="saveDataDetailInfo" parameterType="DataDetailInfo">
+		insert into
+			t_dataDetailInfo(
+				data_id,
+				dataDetail_name,
+				createTime,
+				delflag,
+				remark,
+				state,
+				opt_id
+			) values(
+				#{data_id},
+				#{dataDetail_name},
+				#{createTime},
+				#{delflag},
+				#{remark},
+				#{state},
+				#{opt_id}
+			)
+	</insert>
+	
+	<update id="updateDataDetailInfo" parameterType="DataDetailInfo">
+		update
+			t_dataDetailInfo
+		set
+			dataDetail_name=#{dataDetail_name},
+			remark=#{remark}
+		where
+			dataDetail_id=#{dataDetail_id}
+	</update>
+	
+	<update id="deleteDataDetailInfo" parameterType="Integer">
+		update
+			t_dataDetailInfo
+		set
+			delflag=1
+		where 
+			dataDetail_id=#{dataDetail_id}
+	</update>
+	
+	<update id="deleteDataDetailByDId" parameterType="Integer">
+		update
+			t_dataDetailInfo
+		set
+			delflag=1
+		where 
+			data_id=#{data_id}
+	</update>
+</mapper> 
+
+
+
+
+
+

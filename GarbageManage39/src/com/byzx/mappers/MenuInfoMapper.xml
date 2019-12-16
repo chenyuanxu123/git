@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.MenuInfoDao">
+
+	<select id="findMenusByMenuIds" parameterType="Map" resultType="MenuInfo">
+		select
+			* 
+		from 
+			t_menuInfo 
+		where 
+			delflag=0 
+			and parentId=#{parentId} 
+			and menu_id in 
+			<foreach collection="menuIdList" item="menuInfo" open="(" close=")" separator=",">
+				#{menuInfo}
+			</foreach>
+	</select>
+	
+	<select id="getMenusByMenuIds" parameterType="String" resultType="MenuInfo">
+		select 
+			* 
+		from 
+			t_menuInfo 
+		where 
+			delflag=0 
+			and parentId=#{parentId}
+	</select>
+	
+	<select id="findNodeChildrenMenuId" parameterType="Integer" resultType="Integer">
+		select 
+			count(*) 
+		from
+			t_menuInfo 
+		where 
+			delflag=0
+			and parentId=#{parentId}
+	</select>
+	
+	<update id="updateMenuInfoByParentId" parameterType="Integer">
+		update 
+			t_menuInfo
+		set
+			menu_path='',
+			menu_state='closed'
+		where
+			menu_id=#{parentId}
+	</update>
+	
+	<update id="updateMenuInfoOpenByParentId" parameterType="Integer">
+		update 
+			t_menuInfo
+		set
+			menu_state='open'
+		where
+			menu_id=#{parentId}
+	</update>
+	
+	<insert id="saveMenuInfo" parameterType="MenuInfo">
+		insert into
+			t_menuInfo(
+				menu_name,
+				menu_iconCls,
+				menu_path,
+				menu_state,
+				state,
+				delflag,
+				createtime,
+				parentId,
+				remark,
+				opt_id
+			) values(
+				#{menu_name},
+				#{menu_iconCls},
+				#{menu_path},
+				#{menu_state},
+				#{state},
+				#{delflag},
+				#{createtime},
+				#{parentId},
+				#{remark},
+				#{opt_id}
+			)
+	</insert>
+	
+	<update id="updateMenuInfo" parameterType="MenuInfo">
+		update 
+			t_menuInfo
+		set
+			menu_name=#{menu_name},
+			menu_iconCls=#{menu_iconCls},
+			menu_path=#{menu_path},
+			remark=#{remark},
+			opt_id=#{opt_id}
+		where 
+			menu_id=#{menu_id}
+	</update>
+
+	<update id="deleteMenuInfo" parameterType="Integer">
+		update 
+			t_menuInfo
+		set
+			delflag=1
+		where
+			menu_id=#{menu_id}
+	</update>
+	
+</mapper> 

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.PlotInfoDao">
+
+	<resultMap type="PlotInfo" id="resultPlotInfo">
+		<id property="plot_id" column="plot_id" jdbcType="INTEGER"/>
+		<result property="plot_name" column="plot_name" jdbcType="VARCHAR"/>
+		<result property="plot_site" column="plot_site" jdbcType="VARCHAR"/>
+		<result property="plot_scope" column="plot_scope" jdbcType="VARCHAR"/>
+		<result property="plot_district" column="plot_district" jdbcType="VARCHAR"/>
+		<result property="recycle_id" column="recycle_id" jdbcType="INTEGER"/>
+		<result property="recycle_name" column="recycle_name" jdbcType="VARCHAR"/>
+		<result property="createtime" column="createtime" jdbcType="DATE"/>
+		<result property="delflag" column="delflag" jdbcType="INTEGER"/>
+		<result property="remark" column="remark" jdbcType="VARCHAR"/>
+		<result property="state" column="state" jdbcType="INTEGER"/>
+		<collection property="plot_refInfo" column="plot_id" ofType="Plot_refInfo" select="com.byzx.dao.Plot_refInfoDao.findPlot_refInfoByDId"></collection>
+	</resultMap>
+	
+	 <select id="findAllPlots" parameterType="String" resultMap="resultPlotInfo">
+		select 
+			*
+		from
+			t_plotInfo
+		where 
+			  delflag=0
+			  and plot_site=#{plot_site}
+			<!-- <if test="s_plotName!=null">
+				and plot.plot_name like concat('%',#{s_plotName},'%')
+			</if> -->
+		order by
+			  createtime desc
+		
+	</select> 
+	
+	<select id="findAllPlotScope" resultType="PlotInfo">
+	   select
+	      plot_scope,
+	      plot_site
+	    from
+			t_plotInfo  
+	    where 
+			delflag=0
+	</select>
+	
+	<select id="findAllPlotsCount" parameterType="Map" resultType="Integer">
+		select 
+			count(*)
+		from
+			t_plotInfo
+		where 
+			delflag=0
+			<!-- <if test="s_plotName!=null">
+				and plot_name like concat('%',#{s_plotName},'%')
+			</if> -->
+	</select>
+	
+	<select id="getMaxPlotId" resultType="Integer">
+		select max(plot_id) from t_plotInfo
+	</select>
+	
+	<insert id="savePlotInfo" parameterType="PlotInfo">
+		insert into 
+			t_plotInfo(
+				plot_name,
+				plot_site,
+				plot_scope,
+				plot_district,
+				createtime,
+				delflag,
+				remark,
+				state
+			) values(
+				#{plot_name},
+				#{plot_site},
+				#{plot_scope},
+				#{plot_district},
+				#{createtime},
+				#{delflag},
+				#{remark},
+				#{state}
+			)
+	</insert>
+	
+ 	<update id="updatePlotInfo" parameterType="PlotInfo">
+		update 
+			t_plotInfo
+		<set>
+			<if test="plot_name!=null">
+				plot_name=#{plot_name,jdbcType=VARCHAR},
+			</if>
+			<if test="plot_site!=null">
+				plot_site=#{plot_site,jdbcType=VARCHAR},
+			</if>
+			<if test="plot_scope!=null">
+				plot_scope=#{plot_scope,jdbcType=VARCHAR},
+			</if>
+			<if test="plot_district!=null">
+				plot_district=#{plot_district,jdbcType=VARCHAR},
+			</if>
+			<!-- <if test="recycle_id!=null">
+				recycle_id=#{recycle_id,jdbcType=INTEGER},
+			</if> -->
+			<if test="createtime!=null">
+				createtime=#{createtime,jdbcType=DATE},
+			</if>
+			<if test="delflag!=0">
+				delflag=#{delflag,jdbcType=INTEGER},
+			</if>
+			<if test="remark!=null">
+				remark=#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="state!=0">
+				state=#{state,jdbcType=INTEGER}
+			</if>
+		</set>
+		<where>
+			and plot_id=#{plot_id,jdbcType=INTEGER}
+		</where>
+	</update>
+	
+	<update id="deletePlotInfo" parameterType="Integer">
+		update
+			t_plotInfo
+		set
+			delflag=1
+		where 
+			plot_id=#{plot_id}
+	</update>
+	 
+	
+	
+</mapper> 

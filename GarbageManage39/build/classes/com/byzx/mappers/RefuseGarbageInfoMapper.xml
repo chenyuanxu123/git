@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.byzx.dao.RefuseGarbageInfoDao">
+
+	<resultMap type="RefuseGarbageInfo" id="RefuseGarbageInfoResult">
+		<result property="refuse_id" column="refuse_id"/>
+		<result property="recycle_id" column="recycle_id"/>
+		<result property="refuse_weight" column="refuse_weight"/>
+		<result property="delFlag" column="delFlag"/>
+		<result property="createtime" column="createtime"/>
+		<result property="remark" column="remark"/>
+	</resultMap>
+	
+
+	<select id="findAllRefuseGarbageInfo" resultMap="RefuseGarbageInfoResult">
+		select 
+		        refuse_id,
+				recycle_id,
+				refuse_weight,
+				createtime,
+				remark
+		from 
+				t_refusegarbage 
+		where 
+			delFlag=0
+			order by createtime desc
+		limit #{pageBean.start},#{pageBean.rows}
+	</select>
+	
+	<select id="findAllRefuseGarbageInfoConut" parameterType="Map" resultType="Integer">
+		select 
+			count(*)
+		from 
+			t_refusegarbage
+		where 
+			delflag=0
+	</select>
+	
+	
+	
+	<insert id="saveRefuseGarbageInfo" parameterType="RefuseGarbageInfo">
+		insert into 
+			t_refusegarbage(
+				
+				recycle_id,
+				refuse_weight,
+				state,
+				delFlag,
+				createtime,
+				remark
+			) values(
+				#{recycle_id},
+				#{refuse_weight},
+				#{state},
+				#{delFlag},
+				#{createtime},
+				#{remark}
+			)
+	</insert>
+	
+	 <update id="updateRefuseGarbageInfo" parameterType="RefuseGarbageInfo">
+		update 
+			t_refusegarbage
+		set 
+			recycle_id=#{recycle_id},
+			refuse_weight=#{refuse_weight},
+			remark=#{remark}
+		where
+			refuse_id=#{refuse_id}
+	</update>
+	
+	 <update id="deleteRefuseGarbageInfo" parameterType="Integer">
+		update t_refusegarbage set delFlag=1 where refuse_id=#{refuse_id}
+	</update>  
+</mapper> 
+
+
+
+
+
+
+
